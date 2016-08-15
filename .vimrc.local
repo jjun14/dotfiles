@@ -1,0 +1,485 @@
+" Leader Shortcuts {{{
+
+"Map Leader Key"
+let mapleader="\<Space>"      " leader is space
+
+"" Quick Source Config
+" edit vimrc/zshrc and load vimrc bindings
+nnoremap <leader>ev :vsp $MYVIMRC<CR>
+nnoremap <leader>ez :vsp ~/.zshrc<CR>
+nnoremap <leader>sv :source $MYVIMRC<CR>
+
+"" Quick Copy and Paste Config
+" space + o opens a new file
+nnoremap <leader>o :CtrlP<CR>
+" space + w writes a file
+nnoremap <leader>w :w<CR>
+" copy and paste with leader + y and leader + p
+vmap <leader>y "+y
+vmap <leader>d "+d
+nmap <leader>p "+p
+nmap <leader>P "+P
+vmap <leader>p "+p
+vmap <leader>P "+P
+
+" save session
+nnoremap <leader>s :mksession<CR>
+
+" }}}
+
+" Plugins {{{
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+set encoding=utf-8
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+set rtp+=~/.vim/ultisnips_rep
+set rtp+=~/.vim/
+call vundle#begin()
+
+" let Vundle manage Vundle, required
+"Plugin 'VundleVim/Vundle.vim'
+Plugin 'gmarik/Vundle.vim'
+" ColorSchemes for LightLine
+Plugin 'itchyny/lightline.vim'
+Plugin 'https://github.com/tpope/vim-fugitive.git'
+" Colors
+Plugin 'flazz/vim-colorschemes'
+Plugin 'lifepillar/vim-solarized8'
+"jMatch Tags
+Plugin 'Valloric/MatchTagAlways'
+" Snippets are separated from the engine. Add this if you want them:
+Plugin 'honza/vim-snippets'
+" Add auto-pairs to parentheses and things
+Plugin 'jiangmiao/auto-pairs'
+" Vim and Tmux integration
+Plugin 'christoomey/vim-tmux-navigator'
+" UltiSnips
+Plugin 'SirVer/ultisnips'
+"Jasvcript syntax highlight
+Plugin 'jelera/vim-javascript-syntax'
+" ReactJS
+Plugin 'pangloss/vim-javascript'
+Plugin 'mxw/vim-jsx'
+" TypeScript
+Plugin 'leafgarland/typescript-vim'
+"EditorConfig
+Plugin 'editorconfig/editorconfig-vim'
+
+" Fuzzy finder
+Plugin 'https://github.com/rking/ag.vim.git'
+Plugin 'https://github.com/ctrlpvim/ctrlp.vim.git'
+
+Plugin 'Valloric/YouCompleteMe'
+
+call vundle#end()            " required
+filetype plugin indent on    " required
+
+" }}}
+
+" Searching {{{
+
+set incsearch       " search as characters are entered
+set hlsearch        " highlight matches
+
+" turn off search highlight
+nnoremap <leader>h :nohlsearch<CR>
+
+" highlight last inserted text
+nnoremap gV `[v`]
+
+" }}}
+
+" Movement {{{
+
+" move vertically by visual line
+nnoremap j gj
+nnoremap k gk
+
+nnoremap B ^
+nnoremap E $
+
+" $/^ doesn't do anything
+nnoremap $ <nop>
+nnoremap ^ <nop>
+
+augroup vimrcEx
+    autocmd!
+    " When editing a file, always jump to the last known cursor position.
+    " Don't do it for commit messages, when the position is invalid, or when
+    " inside an event handler (happens when dropping a file on gvim).
+    autocmd BufReadPost *
+        \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+        \   exe "normal g`\"" |
+        \ endif
+
+    " Set syntax highlighting for specific file types
+    autocmd BufRead,BufNewFile Appraisals set filetype=ruby
+    autocmd BufRead,BufNewFile *.md set filetype=markdown
+
+    " Enable spellchecking for Markdown
+    autocmd FileType markdown setlocal spell
+
+    " Automatically wrap at 80 characters for Markdown
+    autocmd BufRead,BufNewFile *.md setlocal textwidth=80
+
+    " Automatically wrap at 72 characters and spell check git commit messages
+    autocmd FileType gitcommit setlocal textwidth=72
+    autocmd FileType gitcommit setlocal spell
+
+    " Allow stylesheets to autocomplete hyphenated words
+    autocmd FileType css,scss,sass setlocal iskeyword+=-
+augroup END
+
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
+
+" }}}
+
+" Tabs & Spacing {{{
+
+set tabstop=2
+set shiftwidth=2
+set shiftround
+set softtabstop=4   " number of spaces in tab when editing
+set expandtab       " tabs are spaces
+filetype indent on  " load filetype-specific indent files
+
+" Tab completion
+" will insert tab at beginning of line,
+" will use completion if not at beginning
+set wildmode=list:longest,list:full
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+      return "\<tab>"
+    else
+      return "\<c-p>"
+    endif
+endfunction
+
+inoremap <Tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <S-Tab> <c-n>
+
+"}}}
+
+  " Folding {{{
+
+  set foldenable          " enable folding
+  set foldlevelstart=10   " open most folds by default
+  set foldnestmax=10      " 10 nested fold max
+  set foldmethod=indent   " fold based on indent level
+
+  " }}}
+
+" Color & UI Layer {{{
+
+" Colorscheme
+set termguicolors
+colorscheme solarized8_dark_high
+
+" Make 80 Character Limit obvi
+set textwidth=80
+set colorcolumn=+1
+
+set number          " show line numbers
+set cursorline      " highlight current line
+
+"Change line number color
+highlight LineNr term=bold cterm=NONE ctermfg=DarkGrey
+
+augroup vimrcEx
+  autocmd!
+
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it for commit messages, when the position is invalid, or when
+  " inside an event handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+        \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+        \   exe "normal g`\"" |
+        \ endif
+
+  " Set syntax highlighting for specific file types
+  autocmd BufRead,BufNewFile Appraisals set filetype=ruby
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
+
+  " Enable spellchecking for Markdown
+  autocmd FileType markdown setlocal spell
+
+  " Automatically wrap at 80 characters for Markdown
+  autocmd BufRead,BufNewFile *.md setlocal textwidth=80
+
+  " Automatically wrap at 72 characters and spell check git commit messages
+  autocmd FileType gitcommit setlocal textwidth=72
+  autocmd FileType gitcommit setlocal spell
+
+  " Allow stylesheets to autocomplete hyphenated words
+  autocmd FileType css,scss,sass setlocal iskeyword+=-
+augroup END
+
+" bind keys for easy window resizing
+if bufwinnr(1)
+  map <C-Up> <C-W>+
+  map <C-Down> <C-W>-
+  map = <C-W>=
+  map <C-Right> <C-W>>
+  map <C-Left> <C-W><
+endif
+
+" }}}
+
+" Syntax {{{
+
+" enable syntax processing
+syntax enable
+
+set showmatch " highlight matching [{()}]
+
+" Display extra whitespace
+set list listchars=tab:»·,trail:·,nbsp:·
+
+" Use one space, not two, after punctuation.
+set nojoinspaces
+
+" Treat <li> and <p> tags like the block tags they are
+let g:html_indent_tags = 'li\|p'
+
+"JS syntax
+let g:javascript_enable_domhtmlcss = 1
+
+" Allow JSX syntax highlighting and indentation in .js files
+let g:jsx_ext_required = 0
+
+" }}}
+
+" TMUX {{{
+
+if exists('$TMUX')
+   function! TmuxOrSplitSwitch(wincmd, tmuxdir)
+     let previous_winnr = winnr()
+     silent! execute "wincmd " . a:wincmd
+     if previous_winnr == winnr()
+       call system("tmux select-pane -" . a:tmuxdir)
+       redraw!
+     endif
+   endfunction
+ 
+   let previous_title = substitute(system("tmux display-message -p '#{pane_title}'"), '\n', '', '')
+   let &t_ti = "\<Esc>]2;vim\<Esc>\\" . &t_ti
+   let &t_te = "\<Esc>]2;". previous_title . "\<Esc>\\" . &t_te
+
+   noremap <silent> <C-h> :call TmuxOrSplitSwitch('h', 'L')<cr>
+   noremap <silent> <C-j> :call TmuxOrSplitSwitch('j', 'D')<cr>
+   noremap <silent> <C-k> :call TmuxOrSplitSwitch('k', 'U')<cr>
+   noremap <silent> <C-l> :call TmuxOrSplitSwitch('l', 'R')<cr>
+ else
+   map <C-j> <C-W>j
+   map <C-k> <C-W>k
+   map <C-h> <C-W>h
+   map <C-l> <C-W>l
+   " noremap <C-h> <C-W>h
+   " noremap <C-j> <C-W>j
+   " noremap <C-k> <C-W>k
+   " noremap <C-l> <C-W>l
+endif
+
+" allows cursor change in tmux mode
+if exists('$TMUX')
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=1\x7\<Esc>\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\<Esc>]50;CursorShape=0\x7\<Esc>\\"
+else
+    let &t_SI = "\<Esc>]50;CursorShape=1\x7"
+    let &t_EI = "\<Esc>]50;CursorShape=0\x7"
+endif
+
+" }}}
+
+"CtrlP {{{
+
+"" Fuzzy Finder Settings
+" open ag.vim
+nnoremap <leader>a :Ag
+
+" CtrlP Config
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP'
+
+" Normal CtrlP
+nnoremap <silent> <Leader>t :CtrlP<cr>
+" Flush then CtrlP
+nnoremap <silent> <leader>T :ClearCtrlPCache<cr>\|:CtrlP<cr>
+
+let g:ctrlp_working_path_mode = 'ra'
+let g:ctrlp_match_window = 'bottom,order:ttb'
+let g:ctrlp_working_path_moderlp_switch_buffer = 0
+let g:ctrlp_working_path_mode = 0
+let g:ctrlp_user_command = 'ag %s -l --nocolor --hidden -g ""'
+
+" }}}
+
+" UltiSnips {{{
+
+" trigger configuration. Do not use <tab> if you use https://github.com/Valloric/YouCompleteMe.
+let g:UltiSnipsExpandTrigger="<tab>"
+let g:UltiSnipsJumpForwardTrigger="<tab>"
+let g:UltiSnipsJumpBackwardTrigger="<s-tab>"
+
+" }}}
+
+" YCM {{{
+
+" make YCM compatible with UltiSnips (using supertab)
+let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
+" you complete me python config
+let g:ycm_path_to_python_interpreter = "/usr/local/bin/python"
+" prevent ycm and ultisnip tab collision
+let g:ycm_key_list_select_completion=[]
+let g:ycm_key_list_previous_completion=[]
+
+" }}}
+
+" Lightline {{{
+
+set noshowmode
+set laststatus=2
+let g:lightline={
+      \ 'colorscheme': 'seoul256',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste'  ],
+      \             [ 'fugitive', 'readonly', 'filename', 'modified'  ] ]
+      \ },
+      \ 'component_function': {
+      \   'modified': 'LightLineModified',
+      \   'readonly': 'LightLineReadonly',
+      \   'fugitive': 'LightLineFugitive',
+      \   'filename': 'LightLineFilename',
+      \   'fileformat': 'LightLineFileFormat',
+      \   'filetype': 'LightLineFiletype',
+      \   'fileencoding': 'LightLineFileencoding',
+      \   'mode': 'LightLineMode',
+      \   'ctrlpmark': 'CtrlPMark',
+      \ },
+      \ 'separator': { 'left': "\ue0b0", 'right': "\ue0b2" },
+      \ 'subseparator': { 'left': "\ue0b1", 'right': "\ue0b3" }
+      \ }
+
+function! LightLineModified()
+  if &filetype == "help"
+    return ""
+  elseif &modified
+    return "+"
+  elseif &modifiable
+    return ""
+  else
+    return ""
+  endif
+endfunction
+
+function! LightLineReadonly()
+  if &filetype == "help"
+    return ""
+  elseif &readonly
+    return "\ue0a2"
+  else
+    return ""
+  endif
+endfunction
+
+function! LightLineFilename()
+  return ('' != LightLineReadonly() ? LightLineReadonly() . ' ' : '') .
+        \ ('' != expand('%:t') ? expand('%:t') : '[No Name]') .
+        \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
+endfunction
+
+function! LightLineFugitive()
+  if exists("*fugitive#head")
+    let _ = fugitive#head()
+    return strlen(_) ? "\ue0a0 "._ : ''
+  endif
+  return ''
+endfunction
+
+function! LightLineFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! LightLineFiletype()
+  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype : 'no ft') : ''
+endfunction
+
+function! LightLineFileencoding()
+  return winwidth(0) > 70 ? (strlen(&fenc) ? &fenc : &enc) : ''
+endfunction
+
+function! LightLineFilename()
+  let fname = expand('%:t')
+  return fname == 'ControlP' && has_key(g:lightline, 'ctrlp_item') ? g:lightline.ctrlp_item :
+          \ ('' != fname ? fname : '[No Name]') .
+          \ ('' != LightLineModified() ? ' ' . LightLineModified() : '')
+endfunction
+
+function! LightLineMode()
+  return winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
+function! CtrlPMark()
+  if expand('%:t') =~ 'ControlP' && has_key(g:lightline, 'ctrlp_item')
+    call lightline#link('iR'[g:lightline.ctrlp_regex])
+    return lightline#concatenate([g:lightline.ctrlp_prev,
+    g:lightline.ctrlp_item
+          \ , g:lightline.ctrlp_next], 0)
+  else
+    return ''
+  endif
+endfunction
+
+let g:ctrlp_status_func = {
+  \ 'main': 'CtrlPStatusFunc_1',
+  \ 'prog': 'CtrlPStatusFunc_2',
+  \ }
+
+function! CtrlPStatusFunc_1(focus, byfname, regex, prev, item, next, marked)
+  let g:lightline.ctrlp_regex = a:regex
+  let g:lightline.ctrlp_prev = a:prev
+  let g:lightline.ctrlp_item = a:item
+  let g:lightline.ctrlp_next = a:next
+  return lightline#statusline(0)
+endfunction
+
+function! CtrlPStatusFunc_2(str)
+  return lightline#statusline(0)
+endfunction
+
+" }}}
+
+" Misc {{{
+set nocompatible
+
+set backspace=indent,eol,start " Set delete to work properly
+
+" Autocomplete with dictionary words when spell check is on
+set complete+=kspell
+
+" check for a modeline at the end of file
+set modeline
+filetype plugin on
+set modelines=1
+
+set nobackup
+set nowritebackup
+set noswapfile    " http://robots.thoughtbot.com/post/18739402579/global-gitignore#comment-458413287
+set history=50
+set ruler         " show the cursor position all the time
+set showcmd       " display incomplete commands
+set incsearch     " do incremental searching
+set laststatus=2  " Always display the status line
+set autowrite     " Automatically :write before running commands
+
+" }}}
+
+" vim: foldmethod=marker:foldlevel=0:foldenable
